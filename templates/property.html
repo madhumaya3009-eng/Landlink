@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        form{
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:20px;
+        }
+        form input,
+        form select,
+        form textarea{
+            width:100%;
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:8px;
+            outline:none;
+            font-size:15px;
+        }
+        form textarea{
+            grid-column:1/3;
+            resize:none;
+            height:120px;
+        }
+        input[type=file]{
+            padding:8px;
+        }
+        form button{
+            grid-column:1/3;
+            padding:15px;
+            border:none;
+            background:#00c853;
+            color:white;
+            font-size:18px;
+            border-radius:10px;
+            cursor:pointer;
+            transition:.3s;
+        }
+        form button:hover{
+            background:#009624;
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+        }
+        table th{
+            background:#00c853;
+            color:white;
+            padding:15px;
+        }
+        table td{
+            padding:15px;
+            text-align:center;
+            border-bottom:1px solid #ddd;
+        }
+        table tr:hover{
+            background:#f5f5f5;
+        }
+        table img{
+            width:120px;
+            height:80px;
+            object-fit:cover;
+            border-radius:8px;
+        }
+        .sidebar{
+            width:250px;
+            background:#1f2937;
+            color:#fff;
+            position:fixed;
+            height:100%;
+            padding-top:30px;
+        }
+        .sidebar h2{
+            text-align:center;
+            margin-bottom:40px;
+            font-size:28px;
+            color:#00c853;
+        }
+        .sidebar ul{
+            list-style:none;
+        }
+        .sidebar ul li{
+            margin:10px 0;
+        }
+        .sidebar ul li a{
+            display:block;
+            color:white;
+            text-decoration:none;
+            padding:15px 30px;
+            transition:.3s;
+            font-size:17px;
+        }
+        .container{
+            display:flex;
+            min-height:100vh;
+        }
+        .main{
+            margin-left:250px;
+            width:calc(100% - 250px);
+            padding:35px;
+        }
+        .main h1{
+            margin-bottom:30px;
+            color:#333;
+        }
+        .sidebar ul li a i{
+            margin-right:10px;
+        }
+        .sidebar ul li a:hover{
+            background:#00c853;
+            border-radius:0 30px 30px 0;
+        }
+        .delete{
+            background:#e53935;
+            color:white;
+            border:none;
+            padding:10px 18px;
+            border-radius:6px;
+            cursor:pointer;
+            transition:.3s;
+        }
+        .delete:hover{
+            background:#c62828;
+        }
+        footer{
+            background:#1f2937;
+            color:white;
+            z-index:3;
+            margin-left: 253px;
+            margin-top:60px;
+            padding:50px 8% 20px;
+        }
+        .footer-container{
+            display:flex;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            gap:40px;
+        }
+        .footer-box{
+            flex:1;
+            min-width:220px;
+        }
+        .footer-box h2,
+        .footer-box h3{
+            margin-bottom:18px;
+            color:#2E8B57;
+        }
+        .footer-box p{
+            color:#ddd;
+            line-height:1.8;
+        }
+        .footer-box a{
+            display:block;
+            text-decoration:none;
+            color:#ddd;
+            margin:10px 0;
+            transition:.3s;
+        }
+        .footer-box a:hover{
+            color:#2E8B57;
+            padding-left:5px;
+        }
+        .footer-box i{
+            color:#2E8B57;
+            margin-right:8px;
+        }
+        footer hr{
+            margin:30px 0 15px;
+            border:none;
+            border-top:1px solid #555;
+        }
+        .copyright{
+            text-align:center;
+            color:#bbb;
+            font-size:15px;
+        }
+
+@media (max-width:768px){
+
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        padding:20px 0;
+    }
+
+    .sidebar h2{
+        font-size:24px;
+        margin-bottom:20px;
+    }
+
+    .sidebar ul{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .sidebar ul li{
+        width:100%;
+        text-align:center;
+    }
+
+    .sidebar ul li a{
+        padding:12px;
+    }
+
+    .sidebar ul li a:hover{
+        border-radius:0;
+    }
+
+
+    .container{
+        flex-direction:column;
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+        padding:20px;
+    }
+
+
+    form{
+        grid-template-columns:1fr;
+    }
+
+    form textarea{
+        grid-column:1;
+    }
+
+    form button{
+        grid-column:1;
+        width:100%;
+    }
+
+    input[type=file]{
+        width:100%;
+    }
+
+    #properties{
+        overflow-x:auto;
+    }
+
+    table{
+        min-width:700px;
+    }
+
+    table th,
+    table td{
+        padding:10px;
+        font-size:14px;
+    }
+
+    table img{
+        width:90px;
+        height:65px;
+    }
+
+    footer{
+        margin-left:0;
+        margin-top:40px;
+        padding:35px 20px;
+    }
+
+    .footer-container{
+        flex-direction:column;
+        text-align:center;
+        gap:25px;
+    }
+
+    .footer-box{
+        min-width:100%;
+    }
+
+    .footer-box a{
+        display:inline-block;
+        margin:6px;
+    }
+
+    .footer-box p{
+        text-align:center;
+    }
+
+    .copyright{
+        font-size:14px;
+    }
+
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+    <div class="sidebar">
+        <h2>Landlink Admin Page!</h2>
+        <ul>
+            <li><a href="/admin"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+            <li><a href="/property"><i class="fa-solid fa-plus"></i> Add Property</a></li>
+            <li><a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+        </ul>
+    </div>
+    <div class="main">
+<section id="add">
+        <h2>Add New Property</h2>
+        <form action="/property" method="POST" enctype="multipart/form-data">
+            <input type="text"
+            name="title"
+            placeholder="Property Title"
+            required>
+            <input type="text"
+            name="location"
+            placeholder="Location"
+            required>
+            <input type="number"
+            name="price"
+            placeholder="Price"
+            required>
+            <input type="text"
+            name="area"
+            placeholder="Area (sq.ft)"
+            required>
+            <select name="property_type">
+                <option>Residential</option>
+                <option>Commercial</option>
+                <option>Agricultural</option>
+                <option>Villa</option>
+                <option>Apartment</option>
+                </select>
+            <textarea
+            name="description"
+            placeholder="Description"></textarea>
+            <input type="file"
+            name="image"
+            required>
+            <button type="submit">Upload Property</button>
+        </form>
+        </section>
+        <section id="properties">
+        <h2>Uploaded Properties</h2>
+        <table>
+            <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% for property in properties %}
+            <tr>
+                <td>
+                    <img src="{{ url_for('static', filename='uploads/' + property[7]) }}" width="100">
+                </td>
+                <td>{{ property[1] }}</td>
+                <td>{{ property[4] }}</td>
+                <td>₹ {{ property[3] }}</td>
+                <td>{{ property[8] }}</td>
+                <td>
+                    <a href="/delete/{{ property[0] }}">
+                    <button class="delete">Delete</button>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        </section>
+    </div>
+    </div>
+    <footer>
+    <div class="footer-container">
+        <div class="footer-box">
+            <h2>🏡 Landlink</h2>
+            <p>
+                Helping you find the perfect property with trust,
+                transparency, and ease.
+            </p>
+        </div>
+        <div class="footer-box">
+            <h3>Quick Links</h3>
+            <a href="/index">Home</a>
+            <a href="/properties">Properties</a>
+            <a href="/contact">Contact</a>
+            <a href="/logout">Logout</a>
+        </div>
+        <div class="footer-box">
+            <h3>Contact Us</h3>
+            <p><i class="fa-solid fa-location-dot"></i> Chennai, Tamil Nadu</p>
+            <p><i class="fa-solid fa-phone"></i> +91 98765 43210</p>
+            <p><i class="fa-solid fa-envelope"></i> support@landlink.com</p>
+        </div>
+    </div>
+    <hr>
+    <p class="copyright">
+        © 2026 Landlink. All Rights Reserved.
+    </p>
+    </footer>
+</body>
+</html>

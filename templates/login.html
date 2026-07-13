@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foodie Hub - Login</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80");
+    background-size:cover;
+    background-position:center;
+}
+.container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:30px 20px;
+}
+
+.card{
+    width:420px;
+    background:white;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,.3);
+}
+
+.card h1{
+    text-align:center;
+    margin-bottom:30px;
+    color:#1f2937;
+}
+
+.input-box{
+    margin-bottom:20px;
+}
+
+.input-box label{
+    font-weight:bold;
+}
+
+.input-box input{
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    border-radius:8px;
+    border:1px solid gray;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    background:#1f2937;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:18px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#425774;
+}
+
+.error{
+    color:red;
+    text-align:center;
+    margin-bottom:15px;
+}
+.register{
+    margin-top:20px;
+    text-align:center;
+}
+.register a{
+    color:#1f2937;
+    text-decoration:none;
+    font-weight:bold;
+}
+.register a:hover{
+    color:#425774;
+}
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 8%;
+    background:white;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    color:#2E8B57;
+}
+footer{
+        background:#1f2937;
+        color:white;
+        margin-top:60px;
+        padding:50px 8% 20px;
+    }
+    .footer-container{
+        display:flex;
+        justify-content:space-between;
+        flex-wrap:wrap;
+        gap:40px;
+    }
+    .footer-box{
+        flex:1;
+        min-width:220px;
+    }
+    .footer-box h2,
+    .footer-box h3{
+        margin-bottom:18px;
+        color:#2E8B57;
+    }
+    .footer-box p{
+        color:#ddd;
+        line-height:1.8;
+    }
+    .footer-box a{
+        display:block;
+        text-decoration:none;
+        color:#ddd;
+        margin:10px 0;
+        transition:.3s;
+    }
+    .footer-box a:hover{
+        color:#2E8B57;
+        padding-left:5px;
+    }
+    .footer-box i{
+        color:#2E8B57;
+        margin-right:8px;
+    }
+    footer hr{
+        margin:30px 0 15px;
+        border:none;
+        border-top:1px solid #555;
+    }
+    .copyright{
+        text-align:center;
+        color:#bbb;
+        font-size:15px;
+    }
+
+@media (max-width:768px){
+
+    nav{
+        flex-direction:column;
+        padding:15px;
+    }
+
+    .logo{
+        font-size:24px;
+        margin-bottom:10px;
+    }
+    .container{
+        min-height:70vh;
+        padding:20px;
+    }
+
+    .card{
+        width:100%;
+        max-width:350px;
+        padding:25px;
+        border-radius:15px;
+    }
+
+    .card h1{
+        font-size:28px;
+        margin-bottom:25px;
+    }
+
+    .input-box input{
+        padding:12px;
+        font-size:15px;
+    }
+
+    button{
+        padding:14px;
+        font-size:16px;
+    }
+
+    .register p,
+    .register a{
+        font-size:15px;
+    }
+
+    footer{
+        margin-top:40px;
+        padding:35px 20px;
+    }
+
+    .footer-container{
+        flex-direction:column;
+        text-align:center;
+        gap:25px;
+    }
+
+    .footer-box{
+        min-width:100%;
+    }
+
+    .footer-box a{
+        display:inline-block;
+        margin:6px;
+    }
+
+    .footer-box p{
+        text-align:center;
+    }
+
+    .copyright{
+        font-size:14px;
+    }
+
+}
+</style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+        🏡 Landlink
+        </div>
+    </nav>
+    <div class="container">
+        <div class="card">
+            <h1>Login</h1>
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+        <form action="/login" method="POST">
+        <div class="input-box">
+        <label>Username</label>
+        <input
+        type="text"
+        name="username"
+        placeholder="Enter Username"
+        required>
+        </div>
+        <div class="input-box">
+            <label>Password</label>
+            <input
+            type="password"
+            name="password"
+            placeholder="Enter Password"
+            required>
+        </div>
+        <button type="submit">
+        Login
+        </button>
+        </form>
+    <div class="register">
+        <p>Don't have an account?</p>
+        <a href="/register">Create Account</a>
+    </div>
+        </div>
+    </div>
+</body>
+</html>

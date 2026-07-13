@@ -1,43 +1,101 @@
 import sqlite3
 import os
-print(os.getcwd())
 from flask import Flask, render_template, request, redirect, session
 from werkzeug.utils import secure_filename
+
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here_change_in_production")
 app.config["UPLOAD_FOLDER"] = "static/uploads"
+
+# ========== DATABASE INITIALIZATION ==========
+def init_db():
+    """Create database tables if they don't exist"""
+    conn = sqlite3.connect("prop.db")
+    cursor = conn.cursor()
+    
+    # Create users table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT
+        )
+    ''')
+    
+    # Create properties table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS properties (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            description TEXT,
+            price REAL,
+            location TEXT,
+            area TEXT,
+            property_type TEXT,
+            image TEXT,
+            status TEXT
+        )
+    ''')
+    
+    # Check if admin exists, if not create default admin
+    cursor.execute("SELECT * FROM users WHERE username='admin'")
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+            ("admin", "admin123", "admin")
+        )
+        print("✅ Default admin created: admin/admin123")
+    
+    conn.commit()
+    conn.close()
+    print("✅ Database initialized successfully!")
+
+# ========== HOME ==========
 @app.route("/")
 def home():
     return render_template("login.html")
+
+# ========== LOGIN ==========
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        
         conn = sqlite3.connect("prop.db")
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users")
-        print(cursor.fetchall())
+        
+        # Remove debug print statement
         cursor.execute(
             "SELECT * FROM users WHERE username=? AND password=?",
             (username, password)
         )
         user = cursor.fetchone()
         conn.close()
+        
         if user:
-            role = user[3]
-            if role == "admin":
+            session["user"] = username
+            session["role"] = user[3]  # role is at index 3
+            if user[3] == "admin":
                 return redirect("/admin")
-            elif role == "user":
+            else:
                 return redirect("/index")
         else:
             return render_template(
                 "login.html",
                 error="Invalid Username or Password"
             )
+    
     return render_template("login.html")
+
+# ========== ADMIN DASHBOARD ==========
 @app.route("/admin")
 def admin():
+    # Check if user is logged in
+    if "user" not in session:
+        return redirect("/login")
+    
     conn = sqlite3.connect("prop.db")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM properties")
@@ -50,21 +108,31 @@ def admin():
     available = cursor.fetchone()[0]
     cursor.execute("SELECT COUNT(*) FROM properties WHERE status='Sold'")
     sold = cursor.fetchone()[0]
-    cursor.execute("SELECT * FROM bookings1")
-    bookings = cursor.fetchall()
     conn.close()
+    
     return render_template(
         "admin.html",
         properties=properties,
         total_properties=total_properties,
         total_users=total_users,
         available=available,
-        sold=sold,bookings=bookings
+        sold=sold
     )
+
+# ========== ADD PROPERTY ==========
 @app.route("/property", methods=["GET", "POST"])
 def add_property():
+    # Check if user is logged in
+    if "user" not in session:
+        return redirect("/login")
+    
+    # Create upload folder if it doesn't exist
+    if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+        os.makedirs(app.config["UPLOAD_FOLDER"])
+    
     conn = sqlite3.connect("prop.db")
     cursor = conn.cursor()
+    
     if request.method == "POST":
         title = request.form["title"]
         location = request.form["location"]
@@ -72,15 +140,20 @@ def add_property():
         area = request.form["area"]
         property_type = request.form["property_type"]
         description = request.form["description"]
-        image = request.files["image"]
-        filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        
+        # Handle image upload
+        if "image" in request.files and request.files["image"].filename:
+            image = request.files["image"]
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        else:
+            filename = "default.jpg"  # Default image if none uploaded
+        
         cursor.execute("""
             INSERT INTO properties
-            (title,description,price,location,area,property_type,image,status)
-            VALUES(?,?,?,?,?,?,?,?)
-        """,
-        (
+            (title, description, price, location, area, property_type, image, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
             title,
             description,
             price,
@@ -91,13 +164,17 @@ def add_property():
             "Available"
         ))
         conn.commit()
+    
     cursor.execute("SELECT * FROM properties")
     properties = cursor.fetchall()
     conn.close()
+    
     return render_template(
         "property.html",
         properties=properties
     )
+
+# ========== VIEW PROPERTIES ==========
 @app.route("/properties")
 def properties():
     conn = sqlite3.connect("prop.db")
@@ -109,22 +186,31 @@ def properties():
         "properties.html",
         properties=properties
     )
+
+# ========== ABOUT ==========
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+# ========== CONTACT ==========
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     return render_template("contact.html")
+
+# ========== LOGOUT ==========
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
+
+# ========== REGISTER ==========
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         role = request.form["role"]
+        
         conn = sqlite3.connect("prop.db")
         cursor = conn.cursor()
         cursor.execute(
@@ -132,115 +218,50 @@ def register():
             (username,)
         )
         user = cursor.fetchone()
+        
         if user:
             conn.close()
             return render_template(
                 "register.html",
                 error="Username already exists"
             )
-        cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)",(username, password, role))
+        
+        cursor.execute(
+            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+            (username, password, role)
+        )
         conn.commit()   
         conn.close()
         return redirect("/login")
+    
     return render_template("register.html")
+
+# ========== DELETE PROPERTY ==========
 @app.route("/delete/<int:id>")
 def delete(id):
+    # Check if user is logged in as admin
+    if "user" not in session or session.get("role") != "admin":
+        return redirect("/login")
+    
     conn = sqlite3.connect("prop.db")
     cursor = conn.cursor()
     cursor.execute("DELETE FROM properties WHERE id=?", (id,))
     conn.commit()
     conn.close()
     return redirect("/admin")
+
+# ========== INDEX ==========
 @app.route("/index")
 def index():
     return render_template("index.html")
-@app.route("/confirm_booking", methods=["POST"])
-def confirm_booking():
 
-    property_id = request.form["property_id"]
-    name = request.form["name"]
-    email = request.form["email"]
-    phone = request.form["phone"]
-    address = request.form["address"]
-
-    conn = sqlite3.connect("prop.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT title,location,price,property_type,image
-        FROM properties
-        WHERE id=?
-    """, (property_id,))
-
-    p = cursor.fetchone()
-
-    cursor.execute("""
-        INSERT INTO bookings1(
-            property_id,
-            customer_name,
-            customer_email,
-            customer_phone,
-            customer_address,
-            title,
-            location,
-            price,
-            property_type,
-            image
-        )
-        VALUES(?,?,?,?,?,?,?,?,?,?)
-    """, (
-        property_id,
-        name,
-        email,
-        phone,
-        address,
-        p[0],
-        p[1],
-        p[2],
-        p[3],
-        p[4]
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return redirect("/properties")
-@app.route("/book/<int:id>")
-def book(id):
-
-    conn = sqlite3.connect("prop.db")
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM properties WHERE id=?", (id,))
-    property = cursor.fetchone()
-
-    conn.close()
-
-    return render_template("booking.html", property=property)
-@app.route("/book", methods=["GET","POST"])
-def book_property():
-    conn = sqlite3.connect("prop.db")
-    cursor = conn.cursor()
-    property = cursor.fetchone()
-    if property:
-        cursor.execute("""
-            INSERT INTO bookings1
-            (property_id,title,location,price,property_type,image)
-            VALUES(?,?,?,?,?,?)
-        """,
-        (
-            property[0],
-            property[1],
-            property[3],
-            property[2],
-            property[4],
-            property[5]
-        ))
-
-        conn.commit()
-
-    conn.close()
-
-    return render_template("booking.html")
+# ========== RUN THE APP ==========
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Initialize database first
+    init_db()
+    
+    # Get port from environment (Railway provides this)
+    port = int(os.environ.get("PORT", 5000))
+    
+    # Run the app
+    app.run(host="0.0.0.0", port=port, debug=False)  # debug=False for production

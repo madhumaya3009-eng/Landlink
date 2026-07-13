@@ -255,13 +255,13 @@ def delete(id):
 def index():
     return render_template("index.html")
 
+# Initialize database whenever the app starts
+init_db()
+
 # ========== RUN THE APP ==========
 if __name__ == "__main__":
-    # Initialize database first
-    init_db()
-    
     # Get port from environment (Railway provides this)
     port = int(os.environ.get("PORT", 5000))
-    
+
     # Run the app
-    app.run(host="0.0.0.0", port=port, debug=False)  # debug=False for production
+    app.run(host="0.0.0.0", port=port, debug=False)

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+<title>Booking | Landlink</title>
     <style>
 *{
     margin:0;
@@ -79,7 +80,6 @@ body{
 nav{
     display:flex;
     justify-content:space-between;
-    align-items:center;
     padding:18px 8%;
     background:white;
     box-shadow:0 2px 10px rgba(0,0,0,.1);
@@ -105,6 +105,11 @@ nav{
     </style>
 </head>
 <body>
+    <nav>
+        <div class="logo">
+        🏡 Landlink
+        </div>
+    </nav>
     <div class="booking-container">
         
     <h2>Book Property</h2>

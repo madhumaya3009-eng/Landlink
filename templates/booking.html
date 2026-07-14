@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-<title>Booking | Landlink</title>
+    <title>Booking | Landlink</title>
     <style>
 *{
     margin:0;
@@ -106,9 +106,7 @@ nav{
 </head>
 <body>
     <div class="booking-container">
-        
     <h2>Book Property</h2>
-
     <form method="POST">
 
         <input type="hidden" name="property_id" value="{{ property[0] }}">

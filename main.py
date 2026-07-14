@@ -250,10 +250,27 @@ def delete(id):
     conn.close()
     return redirect("/admin")
 
-@app.route("/book/<int:id>")
+@app.route("/book/<int:id>", methods=["GET", "POST"])
 def book(id):
     conn = sqlite3.connect("prop.db")
     cursor = conn.cursor()
+
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        address = request.form["address"]
+
+        # Here you can save the booking to the database later
+
+        conn.close()
+
+        return """
+        <script>
+        alert('Booking Successful!');
+        window.location.href='/properties';
+        </script>
+        """
 
     cursor.execute("SELECT * FROM properties WHERE id=?", (id,))
     property = cursor.fetchone()

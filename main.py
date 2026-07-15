@@ -13,7 +13,6 @@ def init_db():
     conn = sqlite3.connect("prop.db")
     cursor = conn.cursor()
     
-    # Create users table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,8 +64,7 @@ def login():
         
         conn = sqlite3.connect("prop.db")
         cursor = conn.cursor()
-        
-        # Remove debug print statement
+
         cursor.execute(
             "SELECT * FROM users WHERE username=? AND password=?",
             (username, password)
@@ -76,7 +74,7 @@ def login():
         
         if user:
             session["user"] = username
-            session["role"] = user[3]  # role is at index 3
+            session["role"] = user[3] 
             if user[3] == "admin":
                 return redirect("/admin")
             else:
@@ -88,11 +86,8 @@ def login():
             )
     
     return render_template("login.html")
-
-# ========== ADMIN DASHBOARD ==========
 @app.route("/admin")
 def admin():
-    # Check if user is logged in
     if "user" not in session:
         return redirect("/login")
     
@@ -118,15 +113,10 @@ def admin():
         available=available,
         sold=sold
     )
-
-# ========== ADD PROPERTY ==========
 @app.route("/property", methods=["GET", "POST"])
 def add_property():
-    # Check if user is logged in
     if "user" not in session:
         return redirect("/login")
-    
-    # Create upload folder if it doesn't exist
     if not os.path.exists(app.config["UPLOAD_FOLDER"]):
         os.makedirs(app.config["UPLOAD_FOLDER"])
     
@@ -147,7 +137,7 @@ def add_property():
             filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
         else:
-            filename = "default.jpg"  # Default image if none uploaded
+            filename = "default.jpg" 
         
         cursor.execute("""
             INSERT INTO properties
@@ -173,8 +163,6 @@ def add_property():
         "property.html",
         properties=properties
     )
-
-# ========== VIEW PROPERTIES ==========
 @app.route("/properties")
 def properties():
     conn = sqlite3.connect("prop.db")
@@ -186,24 +174,16 @@ def properties():
         "properties.html",
         properties=properties
     )
-
-# ========== ABOUT ==========
 @app.route("/about")
 def about():
     return render_template("about.html")
-
-# ========== CONTACT ==========
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     return render_template("contact.html")
-
-# ========== LOGOUT ==========
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
-
-# ========== REGISTER ==========
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -235,11 +215,8 @@ def register():
         return redirect("/login")
     
     return render_template("register.html")
-
-# ========== DELETE PROPERTY ==========
 @app.route("/delete/<int:id>")
 def delete(id):
-    # Check if user is logged in as admin
     if "user" not in session or session.get("role") != "admin":
         return redirect("/login")
     
@@ -260,9 +237,11 @@ def book(id):
         email = request.form["email"]
         phone = request.form["phone"]
         address = request.form["address"]
-
-        # Here you can save the booking to the database later
-
+        cursor.execute("""
+            INSERT INTO bookings1
+            (property_id, customer_name, email, phone, address)
+            VALUES (?, ?, ?, ?, ?)
+        """, (id, name, email, phone, address))
         conn.close()
 
         return """
@@ -281,19 +260,10 @@ def book(id):
         return "Property not found", 404
 
     return render_template("booking.html", property=property)
-
-# ========== INDEX ==========
 @app.route("/index")
 def index():
     return render_template("index.html")
-
-# ========== RUN THE APP ==========
 if __name__ == "__main__":
-    # Initialize database first
     init_db()
-    
-    # Get port from environment (Railway provides this)
     port = int(os.environ.get("PORT", 5000))
-    
-    # Run the app
-    app.run(host="0.0.0.0", port=port, debug=False)  # debug=False for production
+    app.run(host="0.0.0.0", port=port, debug=False)
